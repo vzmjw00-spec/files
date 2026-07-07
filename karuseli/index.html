@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Эра визуального интеллекта - гайд по каруселям</title>
+<meta name="description" content="Гайд @thezinavee: почему карусели с миксом статики, инфографики и видео дают x2 охвата в 2026 году, и фреймворк вирусной карусели по слайдам.">
+<style>
+@font-face{
+  font-family:'Unbounded';font-style:normal;font-weight:200 900;font-display:block;
+  src:url('fonts/unbounded-cyr.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face{
+  font-family:'Unbounded';font-style:normal;font-weight:200 900;font-display:block;
+  src:url('fonts/unbounded-lat.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F,U+2191,U+2193;
+}
+@font-face{
+  font-family:'Golos Text';font-style:normal;font-weight:400 900;font-display:block;
+  src:url('fonts/golos-cyr.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face{
+  font-family:'Golos Text';font-style:normal;font-weight:400 900;font-display:block;
+  src:url('fonts/golos-lat.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F,U+2191,U+2193;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:#0B0E14;
+  color:#F2F4F8;
+  font-family:'Golos Text','Segoe UI',Arial,sans-serif;
+  font-size:18px;
+  line-height:1.6;
+  overflow-x:hidden;
+  position:relative;
+}
+img{max-width:100%;display:block;}
+
+/* atmosphere */
+.glow{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+.glow-blue{
+  width:120vw;height:120vw;left:-40vw;top:-10vw;
+  background:radial-gradient(circle at 42% 38%, rgba(57,193,255,0.16) 0%, rgba(57,193,255,0.06) 38%, rgba(57,193,255,0) 68%);
+}
+.glow-orange{
+  width:110vw;height:110vw;right:-45vw;top:60vh;
+  background:radial-gradient(circle at 55% 50%, rgba(255,122,0,0.14) 0%, rgba(255,122,0,0.05) 42%, rgba(255,122,0,0) 70%);
+}
+.noise{
+  position:fixed;inset:0;opacity:0.05;mix-blend-mode:overlay;pointer-events:none;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{position:relative;z-index:2;max-width:640px;margin:0 auto;padding:0 20px;}
+
+/* hero */
+.hero{padding:40px 20px 32px;text-align:center;}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(255,122,0,0.4);
+  background:linear-gradient(180deg,rgba(255,122,0,0.12),rgba(255,122,0,0.03));
+  border-radius:999px;padding:8px 18px;
+  font-family:'Unbounded',sans-serif;font-weight:600;font-size:12px;letter-spacing:0.18em;
+  color:#ffb066;margin-bottom:22px;
+}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:#ff7a00;box-shadow:0 0 10px rgba(255,122,0,0.9);}
+h1{
+  font-family:'Unbounded',sans-serif;font-weight:800;font-size:34px;line-height:1.18;
+  letter-spacing:-0.01em;margin-bottom:16px;
+  background:linear-gradient(96deg,#39c1ff 0%,#7ecbff 50%,#ff7a00 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero-sub{font-size:17px;line-height:1.6;color:rgba(226,232,244,0.82);max-width:520px;margin:0 auto;}
+.hero-img{margin-top:28px;border-radius:18px;overflow:hidden;border:1px solid rgba(57,193,255,0.35);box-shadow:0 0 40px rgba(57,193,255,0.15),0 20px 50px rgba(0,0,0,0.5);}
+
+/* sections */
+section.card{
+  margin:0 auto 18px;max-width:640px;padding:32px 20px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+.kicker{
+  display:flex;align-items:center;gap:12px;
+  font-family:'Unbounded',sans-serif;font-weight:600;font-size:12px;letter-spacing:0.28em;
+  color:rgba(126,203,255,0.85);margin-bottom:14px;text-transform:uppercase;
+}
+.kicker .rule{flex:0 0 30px;height:1px;background:linear-gradient(90deg,#39c1ff,rgba(57,193,255,0));}
+h2{
+  font-family:'Unbounded',sans-serif;font-weight:700;font-size:24px;line-height:1.25;
+  margin-bottom:14px;color:#F2F4F8;
+}
+h2 span.accent{color:#ff7a00;}
+.card p{margin-bottom:14px;color:rgba(226,232,244,0.86);}
+.card p:last-of-type{margin-bottom:0;}
+.card .text-block{margin-bottom:20px;}
+
+.pic{
+  border-radius:16px;overflow:hidden;
+  border:1px solid rgba(255,122,0,0.28);
+  box-shadow:0 0 30px rgba(255,122,0,0.12),0 16px 40px rgba(0,0,0,0.45);
+}
+
+.boxgrid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px;}
+.box{
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:12px;padding:16px 18px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
+}
+.box .box-title{font-weight:700;color:#39c1ff;margin-bottom:6px;font-size:16px;}
+.box p{margin:0;color:rgba(226,232,244,0.86);font-size:16px;}
+
+.steplist{margin-top:18px;display:flex;flex-direction:column;gap:14px;}
+.step{
+  display:flex;gap:14px;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;padding:14px 16px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));
+}
+.step .num{
+  flex:0 0 auto;font-family:'Unbounded',sans-serif;font-weight:800;font-size:20px;
+  color:#ff7a00;min-width:64px;
+}
+.step .body b{color:#F2F4F8;}
+.step .body{color:rgba(226,232,244,0.86);font-size:16px;}
+
+.rulelist{margin-top:18px;display:flex;flex-direction:column;gap:16px;}
+.rule-item{display:flex;gap:14px;}
+.rule-item .n{
+  flex:0 0 auto;font-family:'Unbounded',sans-serif;font-weight:800;font-size:30px;
+  color:#39c1ff;line-height:1;min-width:34px;
+}
+.rule-item .body b{color:#F2F4F8;}
+
+/* final CTA */
+.final{padding:36px 20px 48px;text-align:center;}
+.final h2{font-size:26px;}
+.final p{margin-bottom:14px;color:rgba(226,232,244,0.86);}
+.final p:last-of-type{margin-bottom:0;}
+.btn-main{
+  display:block;width:100%;max-width:520px;margin:24px auto 0;
+  padding:20px 24px;border-radius:14px;text-align:center;text-decoration:none;
+  font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;letter-spacing:0.03em;
+  color:#0B0E14;
+  background:linear-gradient(96deg,#ff7a00,#ffb066);
+  box-shadow:0 10px 30px rgba(255,122,0,0.35);
+}
+.btn-secondary{
+  display:inline-block;margin-top:16px;padding:12px 20px;border-radius:10px;text-decoration:none;
+  font-size:14px;color:rgba(226,232,244,0.75);
+  border:1px solid rgba(255,255,255,0.16);
+}
+
+footer{
+  text-align:center;padding:30px 20px 50px;
+  font-family:'Unbounded',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.24em;
+  color:rgba(126,203,255,0.6);
+}
+
+@media (min-width:480px){
+  h1{font-size:38px;}
+  .card{padding:36px 24px;}
+}
+</style>
+</head>
+<body>
+<div class="glow glow-blue"></div>
+<div class="glow glow-orange"></div>
+<div class="noise"></div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="badge"><span class="dot"></span>@THEZINAVEE</div>
+    <h1>2026: эра визуального интеллекта</h1>
+    <p class="hero-sub">Ты можешь писать гениальные тексты, но их никто не увидит. В 2026 году карусель перестала быть просто набором картинок. Теперь это твоя персональная мини-продакшн студия.</p>
+    <div class="hero-img"><img src="img/slide1.jpg" alt="X2 охвата. Mixed media и AI. Mini-production" loading="lazy"></div>
+  </div>
+
+  <section class="card">
+    <div class="kicker"><span class="rule"></span><span>Почему это работает</span></div>
+    <h2>Почему карусели <span class="accent">- это новый Netflix</span> в твоем кармане</h2>
+    <div class="text-block">
+      <p><b>Взлом системы:</b> мозг считывает визуальные образы в 60 000 раз быстрее, чем текст. Мы не просто даем информацию, мы создаем визуальный опыт, от которого невозможно оторваться.</p>
+    </div>
+    <div class="pic"><img src="img/slide2.jpg" alt="Взлом системы: mixed media формат, x2 шанса на охват, глубина внимания, виральный потенциал" loading="lazy"></div>
+    <div class="boxgrid">
+      <div class="box">
+        <div class="box-title">Mixed Media формат</div>
+        <p>Статика + инфографика + видео. Это не просто контент, это мини-сериал, где зритель сам переключает серии свайпом.</p>
+      </div>
+      <div class="box">
+        <div class="box-title">X2 шанса на охват</div>
+        <p>Единственный формат, который алгоритм показывает дважды. Не зацепила обложка? Инстаграм покажет второй слайд при следующем входе.</p>
+      </div>
+      <div class="box">
+        <div class="box-title">Глубина внимания</div>
+        <p>Среднее время удержания на Mixed Media карусели в 5 раз выше, чем на обычном посте.</p>
+      </div>
+      <div class="box">
+        <div class="box-title">Виральный потенциал</div>
+        <p>Карусели с инфографикой и видео сохраняют на 65% чаще. Каждое сохранение - это сигнал алгоритму: «Этот контент - золото, пушь его на миллионы»</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="kicker"><span class="rule"></span><span>Геном виральности</span></div>
+    <h2>3 правила управления вниманием</h2>
+    <div class="pic"><img src="img/slide3.jpg" alt="Геном виральности: speed, color, flow" loading="lazy"></div>
+    <div class="rulelist">
+      <div class="rule-item">
+        <div class="n">1</div>
+        <div class="body"><b>Скорость:</b> мозг видит графику в 60 000 раз быстрее текста. Удаляй лишние слова.</div>
+      </div>
+      <div class="rule-item">
+        <div class="n">2</div>
+        <div class="body"><b>Цветовой код:</b> используй 1 яркий акцент на темном фоне. Это транслирует экспертность.</div>
+      </div>
+      <div class="rule-item">
+        <div class="n">3</div>
+        <div class="body"><b>Flow-эффект:</b> создавай «бесшовный» свайп. Картинка должна манить перелистнуть страницу.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="kicker"><span class="rule"></span><span>Double exposure</span></div>
+    <h2>Механика второго шанса</h2>
+    <div class="pic"><img src="img/slide4.jpg" alt="Double exposure: слайд 1 - первый контакт, слайд 2 - второй удар" loading="lazy"></div>
+    <div class="text-block" style="margin-top:18px;">
+      <p>Первый слайд цепляет, второй добивает. Двойной охват. Двойной эффект. Одна идея - два касания.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="kicker"><span class="rule"></span><span>Архитектура вирусной карусели</span></div>
+    <h2>Фреймворк карусели</h2>
+    <div class="pic"><img src="img/slide5.jpg" alt="Фреймворк карусели: крючок, актуализация, мясо, кейс, cta" loading="lazy"></div>
+    <div class="steplist">
+      <div class="step">
+        <div class="num">1 слайд</div>
+        <div class="body"><b>Крючок.</b> Остановите прокрутку и зацепите</div>
+      </div>
+      <div class="step">
+        <div class="num">2-3 слайд</div>
+        <div class="body"><b>Актуализация.</b> Вызвать интерес с помощью примера</div>
+      </div>
+      <div class="step">
+        <div class="num">4-5 слайд</div>
+        <div class="body"><b>Мясо (контент).</b> Удержите внимание с помощью инфографики или видео</div>
+      </div>
+      <div class="step">
+        <div class="num">6-9 слайд</div>
+        <div class="body"><b>Кейс.</b> Дайте полезную информацию</div>
+      </div>
+      <div class="step">
+        <div class="num">10 слайд</div>
+        <div class="body"><b>CTA (призыв).</b> Добавьте понятный призыв к действию</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="kicker"><span class="rule"></span><span>Фреймворк каруселей</span></div>
+    <h2>Шрифты, цвета и размер карусели</h2>
+    <div class="pic"><img src="img/slide6.jpg" alt="Фреймворк каруселей: шрифты, цвета, стиль изображения, размер каруселей" loading="lazy"></div>
+    <div class="steplist">
+      <div class="step">
+        <div class="num">01</div>
+        <div class="body"><b>Выбери 2 шрифта:</b> заголовок + основной текст. Bebas Neue + Roboto</div>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <div class="body"><b>Выбери 3 цвета:</b> фон-текст-акцент</div>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <div class="body"><b>Выбери единый стиль изображения,</b> например: реалистичный/футуристический/кинематографический</div>
+      </div>
+    </div>
+    <div class="text-block" style="margin-top:20px;">
+      <p><b>Размер каруселей.</b> 1:1 (1080x1080) - не используйте этот формат, много потерянного пространства. 4:5 (1080x1350) - можно использовать, но не идеально. 3:4 (1080x1440) - лучший вариант.</p>
+      <p><b>Безопасная зона обложки:</b> 180px сверху и снизу, 50px слева, 120px справа.</p>
+      <p>Карусели с музыкой появляются во вкладке Рилс.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="kicker"><span class="rule"></span><span>Ещё раз, для закрепления</span></div>
+    <h2>Фреймворк каруселей</h2>
+    <div class="pic"><img src="img/slide7.jpg" alt="Фреймворк каруселей: крючок, привлечь внимание, контент, кейс, cta" loading="lazy"></div>
+    <div class="steplist">
+      <div class="step">
+        <div class="num">1 слайд</div>
+        <div class="body"><b>Крючок.</b> Остановите прокрутку и зацепите</div>
+      </div>
+      <div class="step">
+        <div class="num">2-3 слайд</div>
+        <div class="body"><b>Привлечь внимание.</b> Вызвать интерес с помощью примера</div>
+      </div>
+      <div class="step">
+        <div class="num">4-5 слайд</div>
+        <div class="body"><b>Контент.</b> Удержите внимание с помощью инфографики или видео</div>
+      </div>
+      <div class="step">
+        <div class="num">6-9 слайд</div>
+        <div class="body"><b>Кейс.</b> Дайте полезную информацию</div>
+      </div>
+      <div class="step">
+        <div class="num">10 слайд</div>
+        <div class="body"><b>CTA.</b> Добавьте понятный призыв к действию</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="final">
+    <div class="kicker" style="justify-content:center;"><span class="rule"></span><span>Финал</span></div>
+    <h2>Эти карусели я больше не делаю руками</h2>
+    <div class="pic" style="margin:20px 0;"><img src="img/slide8.jpg" alt="Эти карусели я больше не делаю руками. Создание карусели через Claude Code" loading="lazy"></div>
+    <p>Раньше - часы в Канве. Теперь карусели, посты и рилзы за меня собирает Claude Code, я только ставлю задачу</p>
+    <p>Хочешь научиться так же - приходи на воркшоп по вайбкодингу</p>
+    <a class="btn-main" href="https://theivansergeev.ru/workshop/?gcpc=12774" target="_blank" rel="noopener">Записаться на воркшоп</a>
+    <a class="btn-secondary" href="https://vzmjw00-spec.github.io/files/karuseli-2026.pdf" target="_blank" rel="noopener">Скачать PDF-версию</a>
+  </div>
+
+  <footer>@THEZINAVEE</footer>
+
+</div>
+</body>
+</html>
